@@ -4,6 +4,15 @@ const confirmButton = document.getElementById('confirm-button');
 
 let selection = '';
 
+// check if flight number has correct format SA###
+// passes letter to uppercase to comply with database format
+// and returns flight
+const verifyFlightFormat = (flightNumber) =>{
+    flightNumber = flightNumber.split("").map( el => el.toUpperCase()).join("")
+    if (flightNumber.length === 5 && flightNumber.slice(0, 2) === "SA") {
+        return flightNumber
+    }
+}
 const renderSeats = () => {
     document.querySelector('.form-container').style.display = 'block';
 
@@ -46,6 +55,7 @@ const renderSeats = () => {
 
 const toggleFormContent = (event) => {
     const flightNumber = flightInput.value;
+    console.log(verifyFlightFormat(flightNumber))
     console.log('toggleFormContent: ', flightNumber);
     fetch(`/flights/${flightNumber}`)
         .then(res => res.json())
