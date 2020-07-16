@@ -1,16 +1,16 @@
 const flightInput = document.getElementById("flight");
 const seatsDiv = document.getElementById("seats-section");
 const confirmButton = document.getElementById("confirm-button");
-const errorMsg = document.getElementById('error');
+const errorMsg = document.getElementById("error");
 
 let selection = "";
 
 const errorMessages = {
-  'do-not-exist': "Flight number doesn't exist",
-  'invalid-format': "Invalid flight format. Should be SA###",
+  "do-not-exist": "Flight number doesn't exist",
+  "invalid-format": "Invalid flight format. Should be SA###",
 };
 
-const renderSeats = (seats) => {
+const renderSeats = (flightSeats) => {
   document.querySelector(".form-container").style.display = "block";
 
   const alpha = ["A", "B", "C", "D", "E", "F"];
@@ -21,6 +21,9 @@ const renderSeats = (seats) => {
     seatsDiv.appendChild(row);
     for (let s = 1; s < 7; s++) {
       const seatNumber = `${r}${alpha[s - 1]}`;
+      const isAvailable = flightSeats.find((seat) => seat.id === seatNumber)
+        .isAvailable;
+
       const seat = document.createElement("li");
 
       // Two types of seats to render
@@ -28,7 +31,7 @@ const renderSeats = (seats) => {
       const seatAvailable = `<li><label class="seat"><input type="radio" name="seat" value="${seatNumber}" /><span id="${seatNumber}" class="avail">${seatNumber}</span></label></li>`;
 
       // TODO: render the seat availability based on the data...
-      seat.innerHTML = seatAvailable;
+      seat.innerHTML = isAvailable ? seatAvailable : seatOccupied;
       row.appendChild(seat);
     }
   }
@@ -56,10 +59,10 @@ const toggleFormContent = (event) => {
     .then((res) => res.json())
     .then((data) => {
       if (!data.error) {
-        errorMsg.style.display = 'none';
-        renderSeats(data);
+        errorMsg.style.display = "none";
+        renderSeats(data.flight);
       } else {
-        errorMsg.style.display = 'block';
+        errorMsg.style.display = "block";
         errorMsg.innerText = errorMessages[data.error];
       }
     });

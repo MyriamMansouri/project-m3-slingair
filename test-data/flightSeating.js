@@ -13,7 +13,7 @@ const flights = {
     { id: '2E', isAvailable: true },
     { id: '2F', isAvailable: true },
     { id: '3A', isAvailable: true },
-    { id: '3B', isAvailable: true },
+    { id: '3B', isAvailable: false },
     { id: '3C', isAvailable: true },
     { id: '3D', isAvailable: true },
     { id: '3E', isAvailable: true },
