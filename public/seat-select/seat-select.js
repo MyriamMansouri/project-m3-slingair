@@ -26,11 +26,9 @@ const renderSeats = (flightSeats) => {
 
       const seat = document.createElement("li");
 
-      // Two types of seats to render
       const seatOccupied = `<li><label class="seat"><span id="${seatNumber}" class="occupied">${seatNumber}</span></label></li>`;
       const seatAvailable = `<li><label class="seat"><input type="radio" name="seat" value="${seatNumber}" /><span id="${seatNumber}" class="avail">${seatNumber}</span></label></li>`;
 
-      // TODO: render the seat availability based on the data...
       seat.innerHTML = isAvailable ? seatAvailable : seatOccupied;
       row.appendChild(seat);
     }
@@ -66,26 +64,28 @@ const toggleFormContent = (event) => {
         errorMsg.innerText = errorMessages[data.error];
       }
     });
-
-  // TODO: contact the server to get the seating availability
-  //      - Do I need to create an error message if the number is not valid?
-
-  // TODO: Pass the response data to renderSeats to create the appropriate seat-type.
 };
 
 const handleConfirmSeat = (event) => {
   event.preventDefault();
   // TODO: everything in here!
+
   fetch("/users", {
     method: "POST",
     body: JSON.stringify({
       givenName: document.getElementById("givenName").value,
+      surname : document.getElementById("surname").value,
+      email : document.getElementById("email").value,
+      seatNumber : selection
     }),
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-  });
+  })
+    .then((res) => res.json())
+    .then((data) => console.log(data));
 };
 
 flightInput.addEventListener("blur", toggleFormContent);
+confirmButton.addEventListener("click", handleConfirmSeat);
