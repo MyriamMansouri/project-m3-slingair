@@ -259,4 +259,8 @@ input {
     left: calc(52% - 15px);
 }
 
-.form-container { display: none; }
+.form-container,.error-message { display: none; }
+.error-message {
+    color:#fff;
+    margin-left: var(--page-padding);
+}

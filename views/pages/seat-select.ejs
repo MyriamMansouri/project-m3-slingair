@@ -14,7 +14,10 @@
             <div class="flight-select">
                 <label for="flight">Flight Number :</label>
                 <input name="flight" id="flight" class="flight" type="text" placeholder="flight #" />
+                <%- include('../partials/error', { error }) -%>
             </div>
+            
+
             <div class="form-container">
                 <h2>Select your seat and Provide your information!</h2>
                 <form id="seats" class="content" name="salesForm" onsubmit="handleConfirmSeat(event)">
