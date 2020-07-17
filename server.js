@@ -10,7 +10,7 @@ let { flights } = require("./test-data/flightSeating");
 const { reservations } = require("./test-data/Reservations");
 
 let flightNumber = "";
-let reservation = {};
+let currentReservation = {};
 
 express()
   .use(function (req, res, next) {
@@ -60,7 +60,7 @@ express()
   .post("/users", (req, res) => {
     const { givenName, surname, email, seatNumber } = req.body;
 
-    reservation = new Reservation(
+    currentReservation = new Reservation(
       givenName,
       surname,
       email,
@@ -68,7 +68,7 @@ express()
       seatNumber,
       uuidv4()
     );
-    reservations.push(reservation);
+    reservations.push(currentReservation);
 
     //update seat map
     flights[flightNumber] = flights[flightNumber].map((seat) => {
@@ -77,12 +77,19 @@ express()
     });
     res.status(201).json({
       status: 201,
-      reservation,
+      currentReservation,
     });
   })
 
   .get("/confirmed", (req, res) => {
-    res.status(200).render("./pages/confirmed-page", { reservation });
+    res.status(200).render("./pages/reservation-page", { reservation : currentReservation });
   })
+
+  .get("/users/:id", (req, res) => {
+    const id = req.params.id
+    const reservation = reservations.find( reservation => reservation.id === id)
+    res.status(200).render("./pages/reservation-page", { reservation });
+  })
+
 
   .listen(8000, () => console.log(`Listening on port 8000`));
