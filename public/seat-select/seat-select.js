@@ -66,17 +66,17 @@ const toggleFormContent = (event) => {
     });
 };
 
-const handleConfirmSeat = (event) => {
+const handleConfirmSeat = async (event) => {
   event.preventDefault();
   // TODO: everything in here!
 
-  fetch("/users", {
+  await fetch("/users", {
     method: "POST",
     body: JSON.stringify({
       givenName: document.getElementById("givenName").value,
-      surname : document.getElementById("surname").value,
-      email : document.getElementById("email").value,
-      seatNumber : selection
+      surname: document.getElementById("surname").value,
+      email: document.getElementById("email").value,
+      seatNumber: selection,
     }),
     headers: {
       Accept: "application/json",
@@ -84,7 +84,7 @@ const handleConfirmSeat = (event) => {
     },
   })
     .then((res) => res.json())
-    .then((data) => console.log(data));
+    .then((data) => (window.location.href = "/confirmed"));
 };
 
 flightInput.addEventListener("blur", toggleFormContent);

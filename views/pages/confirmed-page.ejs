@@ -15,9 +15,9 @@
                 <div class="user">
                     <p class="message">Your flight is confirmed!</p>
                     <ul class="user-info">
-                        <li>Flight #:<span id="flight"></span> seat #: <span id="seat"></span></li>
-                        <li>Name:<span id="name"></span></li>
-                        <li>Email:<span id="email"></span></li>
+                        <li>Flight #:<span id="flight"><%- reservation.flight %></span> seat #: <span id="seat"><%- reservation.seat %></span></li>
+                        <li>Name:<span id="name"><%- reservation.givenName %> <%- reservation.surname %></span></li>
+                        <li>Email:<span id="email"><%- reservation.email %></span></li>
                     </ul>
                 </div>
                 <div class="tombstone"></div>

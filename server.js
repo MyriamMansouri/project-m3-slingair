@@ -5,12 +5,13 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const { v4: uuidv4 } = require("uuid");
 
-const { User } = require("./js/User");
+const { Reservation } = require("./js/Reservation");
 let { flights } = require("./test-data/flightSeating");
-const { users } = require("./test-data/users");
+const { reservations } = require("./test-data/Reservations");
 const { formatFlightNumber, validateFlightNumber } = require("./js/helpers");
 
 let flightNumber = "";
+let reservation = {};
 
 express()
   .use(function (req, res, next) {
@@ -71,38 +72,29 @@ express()
   .post("/users", (req, res) => {
     const { givenName, surname, email, seatNumber } = req.body;
 
-    //Look for existing user in DB
-    let user = users.find(
-      (user) =>
-        user.email === email &&
-        user.surname === surname &&
-        user.givenName === givenName
+    reservation = new Reservation(
+      givenName,
+      surname,
+      email,
+      flightNumber,
+      seatNumber,
+      uuidv4()
     );
+    reservations.push(reservation);
 
-    // if user doesn't exist, create new
-    if (!user) {
-      user = new User(givenName, surname, email, uuidv4());
-      users.push(user);
-    }
-
-    const index = users.indexOf(user);
-
-    // if user already has a seat in the plane, get seat number to cancel reservation
-    const existingSeatNumber = users[index].reservations[flightNumber];
-    // add new reservation to user
-    users[index].reservations[flightNumber] = seatNumber;
     //update seat map
     flights[flightNumber] = flights[flightNumber].map((seat) => {
-      if (seat.id === existingSeatNumber) seat.isAvailable = true; // cancel existing reservation
       if (seat.id === seatNumber) seat.isAvailable = false; // add new reservation
-      return seat
+      return seat;
     });
-
-    res.status(200).send(user);
+    res.status(201).json({
+      status: 201,
+      reservation,
+    });
   })
 
   .get("/confirmed", (req, res) => {
-    res.status(200).send("ok");
+    res.status(200).render("./pages/confirmed-page", { reservation });
   })
 
   .listen(8000, () => console.log(`Listening on port 8000`));
