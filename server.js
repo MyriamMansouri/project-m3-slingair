@@ -3,15 +3,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
-const { v4: uuidv4 } = require("uuid");
+const request = require("request-promise");
 
-const { Reservation } = require("./js/Reservation");
-let { flights } = require("./test-data/flightSeating");
-const { reservations } = require("./test-data/Reservations");
+const API = "https://journeyedu.herokuapp.com";
 
 let flightNumber = "";
-let currentReservation = {};
-
+let currentId = "";
 express()
   .use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -28,68 +25,68 @@ express()
   .set("view engine", "ejs")
 
   // endpoints
-  .get("/seat-select", (req, res) => {
-    const flightList = Object.keys(flights);
-    const error = req.query.error;
-    const errorMessage =
-      error && error === "invalid-format"
-        ? "Invalid format. Should be SA###"
-        : "Flight doesn't exist";
-    res.status(200).render("./pages/seat-select-page", {
-      status: 200,
-      message: "ok",
-      flightList: flightList,
-      error: error,
-    });
-  })
-
-  .get("/flights/:number", (req, res) => {
-    flightNumber = req.params.number;
+  .get("/seat-select", async (req, res) => {
     try {
-      const isValid = flightNumber;
-
-      if (isValid) {
-        const flight = flights[flightNumber];
-        res.status(200).json({ status: 200, flight: flight });
-      }
+      const flightList = await request(`${API}/slingair/flights`);
+      res.status(200).render("./pages/seat-select-page", {
+        status: 200,
+        flightList: JSON.parse(flightList).flights,
+      });
     } catch (err) {
-      res.status(400).json({ status: 400, error: err });
+      res.status(err.statusCode).json({ err });
     }
   })
 
-  .post("/users", (req, res) => {
+  .get("/flights/:number", async (req, res) => {
+    flightNumber = req.params.number;
+    try {
+      const flight = await request(`${API}/slingair/flights/${flightNumber}`);
+      res
+        .status(200)
+        .json({ status: 200, flight: JSON.parse(flight)[flightNumber] });
+    } catch (err) {
+      res.status(err.statusCode).json({ err });
+    }
+  })
+
+  .post("/users", async (req, res) => {
     const { givenName, surname, email, seatNumber } = req.body;
-
-    currentReservation = new Reservation(
-      givenName,
-      surname,
-      email,
-      flightNumber,
-      seatNumber,
-      uuidv4()
-    );
-    reservations.push(currentReservation);
-
-    //update seat map
-    flights[flightNumber] = flights[flightNumber].map((seat) => {
-      if (seat.id === seatNumber) seat.isAvailable = false; // add new reservation
-      return seat;
-    });
-    res.status(201).json({
-      status: 201,
-      currentReservation,
-    });
+    try {
+      const user = await request({
+        method: "POST",
+        uri: `${API}/slingair/users`,
+        body: {
+          givenName,
+          surname,
+          email,
+          flight: flightNumber,
+          seat: seatNumber,
+        },
+        json: true,
+      });
+      // store current user's id
+      currentId = user.reservation.id;
+      res.status(201).json({
+        status: 201,
+        givenName,
+        surname,
+        email,
+        flight: flightNumber,
+        seat: seatNumber,
+      });
+    } catch (err) {
+      res.status(err.statusCode).json({ err });
+    }
   })
 
   .get("/confirmed", (req, res) => {
-    res.status(200).render("./pages/reservation-page", { reservation : currentReservation });
+    res.status(200).redirect(`/users/${currentId}`);
   })
 
-  .get("/users/:id", (req, res) => {
-    const id = req.params.id
-    const reservation = reservations.find( reservation => reservation.id === id)
-    res.status(200).render("./pages/reservation-page", { reservation });
+  .get("/users/:id", async (req, res) => {
+    const id = req.params.id;
+    const reservation = await request(`${API}/slingair/users/${id}`);
+    res.status(200).render("./pages/reservation-page", { reservation: JSON.parse(reservation).data });
   })
-
 
   .listen(8000, () => console.log(`Listening on port 8000`));

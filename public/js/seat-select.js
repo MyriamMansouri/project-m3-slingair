@@ -60,6 +60,8 @@ const toggleFormContent = (event) => {
         
         renderSeats(data.flight);
         flightSelect.style.display="none"
+      } else {
+        console.log(data)
       }
     });
 };
@@ -82,7 +84,11 @@ const handleConfirmSeat = async (event) => {
   })
     .then((res) => res.json())
     .then((data) => {
-      if ((data.status = 201)) window.location.href = "/confirmed";
+      if ((data.status === 201)) {
+        window.location.href = `/confirmed`;
+      } else {
+        console.log(data)
+      }
     });
 };
 
