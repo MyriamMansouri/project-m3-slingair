@@ -8,7 +8,6 @@ const { v4: uuidv4 } = require("uuid");
 const { Reservation } = require("./js/Reservation");
 let { flights } = require("./test-data/flightSeating");
 const { reservations } = require("./test-data/Reservations");
-const { formatFlightNumber, validateFlightNumber } = require("./js/helpers");
 
 let flightNumber = "";
 let reservation = {};
@@ -30,6 +29,7 @@ express()
 
   // endpoints
   .get("/seat-select", (req, res) => {
+    const flightList = Object.keys(flights);
     const error = req.query.error;
     const errorMessage =
       error && error === "invalid-format"
@@ -38,34 +38,22 @@ express()
     res.status(200).render("./pages/seat-select-page", {
       status: 200,
       message: "ok",
+      flightList: flightList,
       error: error,
     });
   })
 
   .get("/flights/:number", (req, res) => {
-    flightNumber = formatFlightNumber(req.params.number);
+    flightNumber = req.params.number;
     try {
-      const isValid = validateFlightNumber(flightNumber);
+      const isValid = flightNumber;
 
       if (isValid) {
         const flight = flights[flightNumber];
-
-        if (!!flight) {
-          res.status(200).json({ status: 200, flight: flight });
-        } else {
-          throw {
-            code: 404,
-            type: "do-not-exist",
-          };
-        }
-      } else {
-        throw {
-          code: 400,
-          type: "invalid-format",
-        };
+        res.status(200).json({ status: 200, flight: flight });
       }
     } catch (err) {
-      res.status(err.code).json({ status: err.code, error: err.type });
+      res.status(400).json({ status: 400, error: err });
     }
   })
 

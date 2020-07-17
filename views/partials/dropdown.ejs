@@ -1,0 +1,6 @@
+<select id="flight" name="flight" class="flight">
+    <option disabled selected value>- select -</option>
+    <% flightList.forEach( flight => { %>
+        <option value=<%- flight%>><%- flight%></option>
+    <% }) %>
+</select>

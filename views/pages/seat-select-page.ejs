@@ -11,10 +11,9 @@
             <header class='header'>
                 <h1 class='header-logo'>Air Slingshot</h1>
             </div>
-            <div class="flight-select">
+            <div id="flight-select" class="flight-select">
                 <label for="flight">Flight Number :</label>
-                <input name="flight" id="flight" class="flight" type="text" placeholder="flight #" />
-                <%- include('../partials/error', { error }) -%>
+                <%- include('../partials/dropdown', { flightList }) -%>
             </div>
             
 

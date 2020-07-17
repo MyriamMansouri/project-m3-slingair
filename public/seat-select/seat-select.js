@@ -1,7 +1,7 @@
 const flightInput = document.getElementById("flight");
+const flightSelect= document.getElementById("flight-select");
 const seatsDiv = document.getElementById("seats-section");
 const confirmButton = document.getElementById("confirm-button");
-const errorMsg = document.getElementById("error");
 
 let selection = "";
 
@@ -56,19 +56,16 @@ const toggleFormContent = (event) => {
   fetch(`/flights/${flightNumber}`)
     .then((res) => res.json())
     .then((data) => {
-      if (!data.error) {
-        errorMsg.style.display = "none";
+      if (data.status = 200) {
+        
         renderSeats(data.flight);
-      } else {
-        errorMsg.style.display = "block";
-        errorMsg.innerText = errorMessages[data.error];
+        flightSelect.style.display="none"
       }
     });
 };
 
 const handleConfirmSeat = async (event) => {
   event.preventDefault();
-  // TODO: everything in here!
 
   await fetch("/users", {
     method: "POST",
@@ -84,8 +81,10 @@ const handleConfirmSeat = async (event) => {
     },
   })
     .then((res) => res.json())
-    .then((data) => (window.location.href = "/confirmed"));
+    .then((data) => {
+      if ((data.status = 201)) window.location.href = "/confirmed";
+    });
 };
 
-flightInput.addEventListener("blur", toggleFormContent);
+flightInput.addEventListener("change", toggleFormContent);
 confirmButton.addEventListener("click", handleConfirmSeat);
